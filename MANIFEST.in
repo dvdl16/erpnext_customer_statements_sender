@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include erpnext_customer_statements_sender *.css
+recursive-include erpnext_customer_statements_sender *.csv
+recursive-include erpnext_customer_statements_sender *.html
+recursive-include erpnext_customer_statements_sender *.ico
+recursive-include erpnext_customer_statements_sender *.js
+recursive-include erpnext_customer_statements_sender *.json
+recursive-include erpnext_customer_statements_sender *.md
+recursive-include erpnext_customer_statements_sender *.png
+recursive-include erpnext_customer_statements_sender *.py
+recursive-include erpnext_customer_statements_sender *.svg
+recursive-include erpnext_customer_statements_sender *.txt
+recursive-exclude erpnext_customer_statements_sender *.pyc
