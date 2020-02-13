@@ -127,3 +127,6 @@ app_license = "MIT"
 # 	"Task": "erpnext_customer_statements_sender.task.get_dashboard_data"
 # }
 
+fixtures = [
+    {"dt":"Custom Field", "filters": [["dt", "in", ("Customer")], ["fieldname", "=", "disable_customer_statements"]]}
+]
