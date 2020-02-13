@@ -1,0 +1,46 @@
+{
+ "creation": "2020-02-13 21:51:18.298928",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "email",
+  "send_statement"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email Address",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "send_statement",
+   "fieldtype": "Select",
+   "label": "Send Statement",
+   "options": "Yes\nNo"
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-02-13 21:51:18.298928",
+ "modified_by": "Administrator",
+ "module": "Customer Statements",
+ "name": "Customer Statements Sender Email",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

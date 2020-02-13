@@ -1,1 +1,1 @@
-ERPNext Customer Statements Sender
+Customer Statements
