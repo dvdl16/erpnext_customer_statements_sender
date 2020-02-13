@@ -7,7 +7,7 @@
   "columns": 0,
   "default": "0",
   "depends_on": null,
-  "description": "If this is checked, a Customer Statement can not be sent to this customer from the Customer Statements Sender page",
+  "description": "If this is checked, the Customer Statements Sender will skip this customer, unless changed on the Customer Statements Sender page",
   "docstatus": 0,
   "doctype": "Custom Field",
   "dt": "Customer",
