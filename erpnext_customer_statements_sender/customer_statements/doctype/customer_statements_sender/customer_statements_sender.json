@@ -4,30 +4,64 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "refresh_list",
-  "customers",
+  "section_recipient",
+  "get_customer_emails",
+  "recipients",
+  "section_schedule",
+  "enable_schedule",
+  "schedule",
+  "section_manual",
   "send_customer_statements"
  ],
  "fields": [
   {
-   "fieldname": "refresh_list",
+   "fieldname": "send_customer_statements",
+   "fieldtype": "Button",
+   "label": "Send Customer Statements"
+  },
+  {
+   "fieldname": "section_recipient",
+   "fieldtype": "Section Break",
+   "label": "Recipients List"
+  },
+  {
+   "fieldname": "section_schedule",
+   "fieldtype": "Section Break",
+   "label": "Scheduled Sending"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_schedule",
+   "fieldtype": "Check",
+   "label": "Enable Scheduled Sending"
+  },
+  {
+   "depends_on": "eval: doc.enable_schedule==1",
+   "fieldname": "schedule",
+   "fieldtype": "Select",
+   "label": "Schedule",
+   "options": "Last day of calendar month\nEvery 25th day of the month"
+  },
+  {
+   "fieldname": "section_manual",
+   "fieldtype": "Section Break",
+   "label": "Manual Sending"
+  },
+  {
+   "fieldname": "get_customer_emails",
    "fieldtype": "Button",
    "label": "Refresh Customer List"
   },
   {
-   "fieldname": "customers",
+   "description": "You can check the \"Disable Sending of Customer Statements\" checkbox on the Customer record to skip sending Statements to a particular customer",
+   "fieldname": "recipients",
    "fieldtype": "Table",
    "label": "Customers",
    "options": "Customer Statements Sender Email"
-  },
-  {
-   "fieldname": "send_customer_statements",
-   "fieldtype": "Button",
-   "label": "Send Customer Statements"
   }
  ],
  "issingle": 1,
- "modified": "2020-02-13 21:53:18.133642",
+ "modified": "2020-04-15 22:56:58.887465",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",

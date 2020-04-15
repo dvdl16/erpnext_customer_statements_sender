@@ -128,5 +128,5 @@ app_license = "MIT"
 # }
 
 fixtures = [
-    {"dt":"Custom Field", "filters": [["dt", "in", ("Customer")], ["fieldname", "=", "disable_customer_statements"]]}
+    {"dt":"Custom Field", "filters": [["dt", "in", ("Customer", "Contact")], ["fieldname", "in", ("disable_customer_statements", "is_customer_statement_contact")]]}
 ]
