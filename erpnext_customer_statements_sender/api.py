@@ -9,15 +9,19 @@ import json
 from pprint import pprint
 
 @frappe.whitelist()
-def send_statements(options=None):
+def send_statements(company=None):
+
+	if company is None:
+		company = frappe.db.get_single_value('Customer Statements Sender', 'company')
+		if not company:
+			frappe.throw(_('Company field is required on Customer Statements Sender'))
+			exit()
 
 	email_list = get_recipient_list()
 	for row in email_list:
-		print('Checking customer', row.customer)
 		if row.email_id is not None:
 			if row.send_statement == "Yes":
-				print('Need to send statement to customer',row.customer)
-				data = get_report_content(row.customer)
+				data = get_report_content(company, row.customer)
 				if not data:
 					return
 
@@ -28,8 +32,8 @@ def send_statements(options=None):
 
 				frappe.sendmail(
 					recipients = row.email_id,
-					subject = "Customer Statement from Simply Garlic",
-					message = "Good day. <br> Please find attached your latest statement from Simply Garlic",
+					subject = f'Customer Statement from {company}',
+					message = f'Good day. <br> Please find attached your latest statement from {company}',
 					attachments = attachments,
 					reference_doctype = "Report",
 					reference_name="General Ledger"
@@ -37,15 +41,14 @@ def send_statements(options=None):
 
 	frappe.msgprint('Emails queued for sending')
 
-@frappe.whitelist()
-def get_report_content(customer_name):
+def get_report_content(company, customer_name):
 	'''Returns file in for the report in given format'''
 
 	# Borrowed code from frappe/email/doctype/auto_email_report/auto_email_report.py
 	report = frappe.get_doc('Report', "General Ledger")
 
 	custom_filter = {
-					'company': 'Golden Mole',
+					'company': company,
 					'party_type': 'Customer',
 					'party': [customer_name],
 					'from_date': add_days(today(), -90),
@@ -78,10 +81,6 @@ def get_report_content(customer_name):
 
 def get_file_name():
 	return "{0}.{1}".format("Customer Statement".replace(" ", "-").replace("/", "-"), "pdf")
-	# return "{0}.{1}".format("Customer Statement".replace(" ", "-").replace("/", "-"), "html")
-
-
-
 
 
 @frappe.whitelist()

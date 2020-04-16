@@ -4,6 +4,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "company",
   "section_recipient",
   "get_customer_emails",
   "recipients",
@@ -58,10 +59,19 @@
    "fieldtype": "Table",
    "label": "Customers",
    "options": "Customer Statements Sender Email"
+  },
+  {
+   "depends_on": "eval: doc.enable_schedule==1",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2020-04-15 22:56:58.887465",
+ "modified": "2020-04-16 21:13:54.928428",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
