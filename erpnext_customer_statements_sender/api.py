@@ -65,7 +65,7 @@ def send_statements(company=None, manual=None):
 		if row.email_id is not None:
 			if row.send_statement == "Yes":
 				if show_progress:
-					publish_progress(percent=(idx/total*100), title=progress_title, description = f' Creating PDF for {row.customer}')
+					publish_progress(percent=(idx/total*100), title=progress_title, description = ' Creating PDF for {0}'.format(row.customer))
 				data = get_report_content(company, row.customer)
 				# Get PDF Data
 				pdf_data = get_pdf(data)
@@ -79,8 +79,8 @@ def send_statements(company=None, manual=None):
 
 				frappe.sendmail(
 					recipients = row.email_id,
-					subject = f'Customer Statement from {company}',
-					message = f'Good day. <br> Please find attached your latest statement from {company}',
+					subject = 'Customer Statement from {0}'.format(company),
+					message = 'Good day. <br> Please find attached your latest statement from {0}'.format(company),
 					attachments = attachments,
 					reference_doctype = "Report",
 					reference_name="General Ledger"
@@ -148,12 +148,12 @@ def get_report_content(company, customer_name):
 	# Render Template
 	date_time = global_date_format(now()) + ' ' + format_time(now())
 	report_html_data = frappe.render_template('erpnext_customer_statements_sender/templates/report/customer_statement_jinja.html', {
-		'title': f'Customer Statement for {customer_name}',
-		'description': f'Customer Statement for {customer_name}',
+		'title': 'Customer Statement for {0}'.format(customer_name),
+		'description': 'Customer Statement for {0}'.format(customer_name),
 		'date_time': date_time,
 		'columns': columns_gl,
 		'data': data_gl,
-		'report_name': f'Customer Statement for {customer_name}',
+		'report_name': 'Customer Statement for {0}'.format(customer_name),
 		'filters': report_gl_filters,
 		'letter_head': letter_head.content,
 		'billing_address': get_billing_address(customer_name),
