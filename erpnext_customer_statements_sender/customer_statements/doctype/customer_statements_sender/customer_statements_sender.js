@@ -12,7 +12,43 @@ frappe.ui.form.on('Customer Statements Sender', {
       doc: frm.doc,
       callback: function(r) {
           cur_frm.refresh_field('recipients');
+          cur_frm.save();
       }
     });
-	}
+	},
+	send_customer_statements: function(frm) {
+    frappe.call({
+      method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
+      args: {
+        manual: true
+      },
+      callback: function(r) {
+      }
+    });
+	},
+  preview: function(frm) {
+    if(frm.doc.customer != undefined && frm.doc.customer != ""){
+      frappe.call({
+        method: "erpnext_customer_statements_sender.api.get_report_content",
+        args: {
+          company: frm.doc.company,
+          customer_name: frm.doc.customer
+        },
+        callback: function(r) {
+          var x=window.open();
+          x.document.open().write(r.message);
+        }
+      });
+    }
+    else {
+      frappe.msgprint('Please select a customer');
+    }
+  },
+  letter_head: function(frm) {
+    cur_frm.save();
+  },
+  no_ageing: function(frm) {
+    cur_frm.save();
+  }
+
 });

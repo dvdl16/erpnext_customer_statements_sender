@@ -11,18 +11,25 @@
   "section_preferences",
   "no_letter_head",
   "letter_head",
+  "column_break_8",
   "no_ageing",
   "section_schedule",
+  "html_schedule",
   "enable_schedule",
   "schedule",
   "section_manual",
-  "send_customer_statements"
+  "send_html",
+  "send_customer_statements",
+  "column_break_14",
+  "preview_html",
+  "customer",
+  "preview"
  ],
  "fields": [
   {
    "fieldname": "send_customer_statements",
    "fieldtype": "Button",
-   "label": "Send Customer Statements"
+   "label": "Send All Customer Statements"
   },
   {
    "fieldname": "section_recipient",
@@ -38,6 +45,7 @@
    "default": "0",
    "fieldname": "enable_schedule",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Enable Scheduled Sending"
   },
   {
@@ -58,7 +66,7 @@
    "label": "Refresh Customer Preview"
   },
   {
-   "description": "You can check the \"Disable Sending of Customer Statements\" checkbox on the Customer record to skip sending Statements to a particular customer",
+   "description": "The list of active customers below shows who will receive statements when this utility is run. You can tick the \"Disable Sending of Customer Statements\" checkbox on the Customer record to skip sending Statements to a particular customer",
    "fieldname": "recipients",
    "fieldtype": "Table",
    "label": "Customers",
@@ -87,19 +95,55 @@
   },
   {
    "default": "0",
+   "description": "Check this box to hide the Letterhead. If unchecked, your company's default letterhead will be used, or the letterhead defined below",
    "fieldname": "no_letter_head",
    "fieldtype": "Check",
    "label": "No Letter Head"
   },
   {
    "default": "0",
+   "description": "Check this box to hide the Ageing/Accounts Receivable Summary table shown below the statement",
    "fieldname": "no_ageing",
    "fieldtype": "Check",
    "label": "No Ageing Summary"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "preview_html",
+   "fieldtype": "HTML",
+   "options": "<p class=\"help-box small text-muted\">Preview or Print Customer Statement for Customer:</p>"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "preview",
+   "fieldtype": "Button",
+   "label": "Preview or Print"
+  },
+  {
+   "fieldname": "send_html",
+   "fieldtype": "HTML",
+   "options": "<p class=\"help-box small text-muted\"> Send all Customer Statements to Customers Now</p>"
+  },
+  {
+   "fieldname": "html_schedule",
+   "fieldtype": "HTML",
+   "options": "<p class=\"help-box small text-muted\"> Feature coming soon </p>"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
   }
  ],
  "issingle": 1,
- "modified": "2020-04-19 14:37:25.060563",
+ "modified": "2020-04-19 16:32:52.893724",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",

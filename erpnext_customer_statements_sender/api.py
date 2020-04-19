@@ -9,9 +9,47 @@ import json
 from pprint import pprint
 from frappe.www import printview
 import datetime
+from frappe import publish_progress
 
 @frappe.whitelist()
-def send_statements(company=None):
+def get_recipient_list():
+	return frappe.db.sql("""SELECT
+								customer,
+								contact,
+								email_id,
+								MIN(priority) AS priority,
+								send_statement
+							FROM
+								(SELECT
+									tab_cus.name AS 'customer',
+									tab_con.name AS 'contact',
+									tab_con.email_id,
+									CASE WHEN is_customer_statement_contact = 1 THEN 1 WHEN tab_con.is_primary_contact = 1 THEN 2 ELSE 3 END AS 'priority',
+									CASE WHEN tab_cus.disable_customer_statements = 1 THEN 'No (Disabled for this customer)' WHEN ISNULL(tab_con.email_id) OR tab_con.email_id = '' THEN 'No (No email address on record)' ELSE 'Yes' END AS 'send_statement'
+								FROM `tabCustomer` AS tab_cus
+									LEFT JOIN `tabDynamic Link` as tab_dyn ON tab_dyn.link_name = tab_cus.name AND tab_dyn.link_doctype = 'Customer' AND tab_dyn.parenttype = 'Contact'
+									LEFT JOIN `tabContact` as tab_con ON tab_dyn.parent = tab_con.name
+								WHERE tab_cus.disabled = 0) AS t_contacts
+							GROUP BY customer
+							ORDER BY customer""", as_dict=True)
+
+@frappe.whitelist()
+def statements_sender_scheduler(manual=None):
+	if manual:
+		send_statements(manual=manual)
+	else:
+		enqueue()
+
+
+def send_statements(company=None, manual=None):
+	"""
+	Send out customer statements
+	"""
+	show_progress = manual
+	progress_title = _("Sending customer statements...")
+
+	if show_progress:
+		publish_progress(percent=0, title=progress_title)
 
 	if company is None:
 		company = frappe.db.get_single_value('Customer Statements Sender', 'company')
@@ -20,35 +58,50 @@ def send_statements(company=None):
 			exit()
 
 	email_list = get_recipient_list()
+	idx = 0
+	total = len(email_list)
 	for row in email_list:
+		idx += 1
 		if row.email_id is not None:
 			if row.send_statement == "Yes":
+				if show_progress:
+					publish_progress(percent=(idx/total*100), title=progress_title, description = f' Creating PDF for {row.customer}')
 				data = get_report_content(company, row.customer)
-				if not data:
+				# Get PDF Data
+				pdf_data = get_pdf(data)
+				if not pdf_data:
 					return
 
 				attachments = [{
 					'fname': get_file_name(),
-					'fcontent': data
+					'fcontent': pdf_data
 				}]
 
-				# frappe.sendmail(
-				# 	recipients = row.email_id,
-				# 	subject = f'Customer Statement from {company}',
-				# 	message = f'Good day. <br> Please find attached your latest statement from {company}',
-				# 	attachments = attachments,
-				# 	reference_doctype = "Report",
-				# 	reference_name="General Ledger"
-				# )
+				frappe.sendmail(
+					recipients = row.email_id,
+					subject = f'Customer Statement from {company}',
+					message = f'Good day. <br> Please find attached your latest statement from {company}',
+					attachments = attachments,
+					reference_doctype = "Report",
+					reference_name="General Ledger"
+				)
 
-	frappe.msgprint('Emails queued for sending')
+	if show_progress:
+		publish_progress(percent=100, title=progress_title)
+		frappe.msgprint('Emails queued for sending')
 
+def enqueue():
+	"""Add method `send_statements` to the queue."""
+	frappe.enqueue(method=send_statements, queue='long',
+					timeout=300, is_async=True)
+
+@frappe.whitelist()
 def get_report_content(company, customer_name):
-	'''Returns file in for the report in given format'''
+	'''Returns html for the report in PDF format'''
 
-	settings_doc = frappe.get_doc('Customer Statements Sender', 'Customer Statements Sender')
+	settings_doc = frappe.get_single('Customer Statements Sender')
 
-	# Borrowed code from frappe/email/doctype/auto_email_report/auto_email_report.py
+	# Get General Ledger report content
 	report_gl = frappe.get_doc('Report', 'General Ledger')
 	report_gl_filters = {
 					'company': company,
@@ -60,12 +113,12 @@ def get_report_content(company, customer_name):
 
 	columns_gl, data_gl = report_gl.get_data(limit=500, user = "Administrator", filters = report_gl_filters, as_dict=True)
 
-	# add serial numbers
+	# Add serial numbers
 	columns_gl.insert(0, frappe._dict(fieldname='idx', label='', width='30px'))
 	for i in range(len(data_gl)):
 		data_gl[i]['idx'] = i+1
 
-	# Get ageing summary
+	# Get ageing summary report content
 	data_ageing = []
 	labels_ageing = []
 	if settings_doc.no_ageing != 1:
@@ -89,10 +142,10 @@ def get_report_content(company, customer_name):
 	# Get Letter Head
 	no_letterhead = bool(frappe.db.get_single_value('Customer Statements Sender', 'no_letter_head'))
 	letter_head = frappe._dict(printview.get_letter_head(settings_doc, no_letterhead) or {})
-
 	if letter_head.content:
 		letter_head.content = frappe.utils.jinja.render_template(letter_head.content, {"doc": settings_doc.as_dict()})
 
+	# Render Template
 	date_time = global_date_format(now()) + ' ' + format_time(now())
 	report_html_data = frappe.render_template('erpnext_customer_statements_sender/templates/report/customer_statement_jinja.html', {
 		'title': f'Customer Statement for {customer_name}',
@@ -108,10 +161,7 @@ def get_report_content(company, customer_name):
 		'data_ageing': data_ageing
 	})
 
-	print(report_html_data)
-
-	pdf_data = get_pdf(report_html_data)
-	return pdf_data
+	return report_html_data
 
 
 def get_file_name():
@@ -151,28 +201,3 @@ def get_billing_address(customer):
 		return addresses[0]
 	else:
 		return {}
-
-
-
-
-@frappe.whitelist()
-def get_recipient_list():
-	return frappe.db.sql("""SELECT
-								customer,
-								contact,
-								email_id,
-								MIN(priority) AS priority,
-								send_statement
-							FROM
-								(SELECT
-									tab_cus.name AS 'customer',
-									tab_con.name AS 'contact',
-									tab_con.email_id,
-									CASE WHEN is_customer_statement_contact = 1 THEN 1 WHEN tab_con.is_primary_contact = 1 THEN 2 ELSE 3 END AS 'priority',
-									CASE WHEN tab_cus.disable_customer_statements = 1 THEN 'No (Disabled for this customer)' WHEN ISNULL(tab_con.email_id) OR tab_con.email_id = '' THEN 'No (No email address on record)' ELSE 'Yes' END AS 'send_statement'
-								FROM `tabCustomer` AS tab_cus
-									LEFT JOIN `tabDynamic Link` as tab_dyn ON tab_dyn.link_name = tab_cus.name AND tab_dyn.link_doctype = 'Customer' AND tab_dyn.parenttype = 'Contact'
-									LEFT JOIN `tabContact` as tab_con ON tab_dyn.parent = tab_con.name
-								WHERE tab_cus.disabled = 0) AS t_contacts
-							GROUP BY customer
-							ORDER BY customer""", as_dict=True)
