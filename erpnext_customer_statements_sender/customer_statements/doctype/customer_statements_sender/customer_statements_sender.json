@@ -73,7 +73,6 @@
    "options": "Customer Statements Sender Email"
   },
   {
-   "depends_on": "eval: doc.enable_schedule==1",
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -143,7 +142,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2020-04-19 17:26:40.962298",
+ "modified": "2020-04-19 21:18:59.499346",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",

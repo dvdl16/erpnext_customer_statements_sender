@@ -147,7 +147,7 @@ def get_report_content(company, customer_name):
 
 	# Render Template
 	date_time = global_date_format(now()) + ' ' + format_time(now())
-	currency = frappe.db.get_single_value('Company', company, 'default_currency')
+	currency = frappe.db.get_value('Company', company, 'default_currency')
 	report_html_data = frappe.render_template('erpnext_customer_statements_sender/templates/report/customer_statement_jinja.html', {
 		'title': 'Customer Statement for {0}'.format(customer_name),
 		'description': 'Customer Statement for {0}'.format(customer_name),
