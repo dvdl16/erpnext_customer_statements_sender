@@ -8,6 +8,9 @@
   "section_recipient",
   "get_customer_emails",
   "recipients",
+  "section_preferences",
+  "no_letter_head",
+  "letter_head",
   "section_schedule",
   "enable_schedule",
   "schedule",
@@ -23,7 +26,7 @@
   {
    "fieldname": "section_recipient",
    "fieldtype": "Section Break",
-   "label": "Recipients List"
+   "label": "Recipients Preview"
   },
   {
    "fieldname": "section_schedule",
@@ -51,7 +54,7 @@
   {
    "fieldname": "get_customer_emails",
    "fieldtype": "Button",
-   "label": "Refresh Customer List"
+   "label": "Refresh Customer Preview"
   },
   {
    "description": "You can check the \"Disable Sending of Customer Statements\" checkbox on the Customer record to skip sending Statements to a particular customer",
@@ -68,10 +71,28 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_preferences",
+   "fieldtype": "Section Break",
+   "label": "Preferences"
+  },
+  {
+   "depends_on": "eval: doc.no_letter_head==0",
+   "fieldname": "letter_head",
+   "fieldtype": "Link",
+   "label": "Letter Head",
+   "options": "Letter Head"
+  },
+  {
+   "default": "0",
+   "fieldname": "no_letter_head",
+   "fieldtype": "Check",
+   "label": "No Letter Head"
   }
  ],
  "issingle": 1,
- "modified": "2020-04-16 21:13:54.928428",
+ "modified": "2020-04-17 11:34:21.092378",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
