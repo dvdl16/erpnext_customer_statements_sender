@@ -217,10 +217,10 @@
 				<thead>
 					<tr>
 						<th style="width: 12%">{{ _("Date") }}</th>
-						<th style="width: 14%">{{ _("Type") }}</th>
-						<th style="width: 40%">{{ _("Reference") }}</th>
-						<th style="width: 17%">{{ _("Amount") }}</th>
-						<th style="width: 17%">{{ _("Balance") }}</th>
+						<th style="width: 12%">{{ _("Type") }}</th>
+						<th style="width: 46%">{{ _("Reference") }}</th>
+						<th style="width: 15%">{{ _("Amount") }}</th>
+						<th style="width: 15%">{{ _("Balance") }}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -254,6 +254,29 @@
 				</tbody>
 			</table>
 
+			{% if data_ageing %}
+			<h6>Ageing Summary</h6>
+			<table class="table table-bordered" style="width:50%;">
+				<thead>
+					<tr>
+						<th style="width: 20%">{{ labels_ageing.range1 }}</th>
+						<th style="width: 20%">{{ labels_ageing.range2 }}</th>
+						<th style="width: 20%">{{ labels_ageing.range3 }}</th>
+						<th style="width: 20%">{{ labels_ageing.range4 }}</th>
+						<th style="width: 20%">{{ labels_ageing.range5 }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td> {{ data_ageing[0].range1 }} </td>
+						<td> {{ data_ageing[0].range2 }} </td>
+						<td> {{ data_ageing[0].range3 }} </td>
+						<td> {{ data_ageing[0].range4 }} </td>
+						<td> {{ data_ageing[0].range5 }} </td>
+					</tr>
+				</tbody>
+			</table>
+			{% endif %}
 
 			{% if not frappe.db.get_value("System Settings", "System Settings", "hide_footer_in_auto_email_reports")|int %}
 			<table class="more-info" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: {{ max_width }}">
