@@ -228,7 +228,13 @@
 						<tr>
 						{% if(row.posting_date) %}
 							<td>{{ row.posting_date }}</td>
-							<td>{{ row.voucher_type }}</td>
+							<td>
+								{% if (row.voucher_type == "Sales Invoice") and (row.credit > 0) %}
+									{{ _("Credit Note") }}
+								{% else %}
+									{{ row.voucher_type }}
+								{% endif %}
+							</td>
 							<td>
 								{{ row.voucher_no }}
 								<span style="font-size:9px;">
@@ -256,7 +262,7 @@
 
 			{% if data_ageing %}
 			<h6>Ageing Summary</h6>
-			<table class="table table-bordered" style="width:50%;">
+			<table class="table table-bordered" style="width:75%;">
 				<thead>
 					<tr>
 						<th style="width: 20%">{{ labels_ageing.range1 }}</th>
