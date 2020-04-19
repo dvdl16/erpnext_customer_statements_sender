@@ -2,6 +2,8 @@
 
 This app allows you to send out statements to your customers in bulk
 
+#### 🛠 Please note that this is a Work in Progress 🛠 Issues and PR's welcome.
+
 The interface is on a Single Doctype called `Customer Statements Sender`:
 
 ![](screencast.gif)
@@ -22,3 +24,5 @@ bench --site site1.local install-app erpnext_customer_statements_sender
 Copyright (C) 2020  Dirk van der Laarse
 
 MIT
+
+#### 🛠 Please note that this is a Work in Progress 🛠 Make sure you check the statements beforehand to avoid angry customers
