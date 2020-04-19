@@ -237,17 +237,17 @@
 								</span>
 								</td>
 								<td style="text-align: right">
-									{{ row.debit - row.credit}}</td>
+									{{ frappe.utils.fmt_money(row.debit - row.credit, currency=currency) }}</td>
 						{% else %}
 							<td></td>
 							<td></td>
 							<td><b>{{ row.account | replace("'","") }}</b></td>
 							<td style="text-align: right">
-								{{ row.debit - row.credit }}
+								{{ frappe.utils.fmt_money(row.debit - row.credit, currency=currency) }}
 							</td>
 						{% endif %}
 							<td style="text-align: right">
-								{{ row.balance }}
+								{{ frappe.utils.fmt_money(row.balance, currency=currency) }}
 							</td>
 						</tr>
 					{% endfor %}
@@ -268,11 +268,11 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td> {{ data_ageing[0].range1 }} </td>
-						<td> {{ data_ageing[0].range2 }} </td>
-						<td> {{ data_ageing[0].range3 }} </td>
-						<td> {{ data_ageing[0].range4 }} </td>
-						<td> {{ data_ageing[0].range5 }} </td>
+						<td> {{ frappe.utils.fmt_money(data_ageing[0].range1, currency=currency) }} </td>
+						<td> {{ frappe.utils.fmt_money(data_ageing[0].range2, currency=currency) }} </td>
+						<td> {{ frappe.utils.fmt_money(data_ageing[0].range3, currency=currency) }} </td>
+						<td> {{ frappe.utils.fmt_money(data_ageing[0].range4, currency=currency) }} </td>
+						<td> {{ frappe.utils.fmt_money(data_ageing[0].range5, currency=currency) }} </td>
 					</tr>
 				</tbody>
 			</table>
