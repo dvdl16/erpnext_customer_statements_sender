@@ -25,9 +25,6 @@ frappe.ui.form.on('Customer Statements Sender', {
     frappe.confirm(
         'Are you sure you want to send Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
         function(){
-            window.close();
-        },
-        function(){
           frappe.call({
             method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
             args: {
@@ -36,6 +33,9 @@ frappe.ui.form.on('Customer Statements Sender', {
             callback: function(r) {
             }
           });
+        },
+        function(){
+          window.close();
         }
     );
 	},
