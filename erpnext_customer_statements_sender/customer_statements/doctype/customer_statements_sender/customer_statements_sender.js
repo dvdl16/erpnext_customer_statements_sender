@@ -17,14 +17,23 @@ frappe.ui.form.on('Customer Statements Sender', {
     });
 	},
 	send_customer_statements: function(frm) {
-    frappe.call({
-      method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
-      args: {
-        manual: true
-      },
-      callback: function(r) {
-      }
-    });
+    let validRecipients = frm.doc.recipients.filter(c => c.send_statement === "Yes").length;
+    frappe.confirm(
+        'Are you sure you want to send Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
+        function(){
+            window.close();
+        },
+        function(){
+          frappe.call({
+            method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
+            args: {
+              manual: true
+            },
+            callback: function(r) {
+            }
+          });
+        }
+    );
 	},
   preview: function(frm) {
     if(frm.doc.customer != undefined && frm.doc.customer != ""){
