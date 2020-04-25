@@ -5,6 +5,10 @@ frappe.ui.form.on('Customer Statements Sender', {
   refresh: function(frm) {
     // Hide Add Row button
     $('div[id="page-Form/Customer Statements Sender"] div.small.form-clickable-section.grid-footer').css({'display': 'none'});
+    // Default values in From and To Dates
+    var today = frappe.datetime.nowdate();
+    frm.set_value('from_date', frappe.datetime.month_start(today));
+    frm.set_value('to_date', today);
   },
 	get_customer_emails: function(frm) {
     frappe.call({
@@ -41,7 +45,9 @@ frappe.ui.form.on('Customer Statements Sender', {
         method: "erpnext_customer_statements_sender.api.get_report_content",
         args: {
           company: frm.doc.company,
-          customer_name: frm.doc.customer
+          customer_name: frm.doc.customer,
+          from_date: frm.doc.from_date,
+          to_date: frm.doc.to_date
         },
         callback: function(r) {
           var x=window.open();

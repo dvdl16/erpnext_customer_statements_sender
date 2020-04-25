@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from frappe.utils import flt, time_diff_in_hours, get_datetime, getdate, today, cint, add_days, get_link_to_form, format_time, global_date_format, now, get_url_to_report
+from frappe.utils import flt, time_diff_in_hours, get_datetime, getdate, today, cint, add_days, get_link_to_form, format_time, global_date_format, now, get_url_to_report, get_first_day
 from frappe.utils.xlsxutils import make_xlsx
 from frappe.utils.pdf import get_pdf
 from frappe import _
@@ -96,10 +96,15 @@ def enqueue():
 					timeout=300, is_async=True)
 
 @frappe.whitelist()
-def get_report_content(company, customer_name):
+def get_report_content(company, customer_name, from_date=None, to_date=None):
 	'''Returns html for the report in PDF format'''
 
 	settings_doc = frappe.get_single('Customer Statements Sender')
+
+	if not from_date:
+		from_date = get_first_day(today()).strftime("%Y-%m-%d")
+	if not to_date:
+		to_date = today()
 
 	# Get General Ledger report content
 	report_gl = frappe.get_doc('Report', 'General Ledger')
@@ -107,8 +112,8 @@ def get_report_content(company, customer_name):
 					'company': company,
 					'party_type': 'Customer',
 					'party': [customer_name],
-					'from_date': add_days(today(), -90),
-					'to_date': today(),
+					'from_date': from_date,
+					'to_date': to_date,
 					'group_by': 'Group by Voucher (Consolidated)'}
 
 	columns_gl, data_gl = report_gl.get_data(limit=500, user = "Administrator", filters = report_gl_filters, as_dict=True)

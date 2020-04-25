@@ -20,6 +20,8 @@
   "column_break_14",
   "preview_html",
   "customer",
+  "from_date",
+  "to_date",
   "preview",
   "section_recipient",
   "get_customer_emails",
@@ -129,7 +131,7 @@
   {
    "fieldname": "send_html",
    "fieldtype": "HTML",
-   "options": "<p class=\"help-box small text-muted\"> Send all Customer Statements to Customers Now</p>"
+   "options": "<p class=\"help-box small text-muted\"> Send all Customer Statements, for the current month to date, to Customers Now</p>"
   },
   {
    "fieldname": "html_schedule",
@@ -139,10 +141,20 @@
   {
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
   }
  ],
  "issingle": 1,
- "modified": "2020-04-19 21:18:59.499346",
+ "modified": "2020-04-25 20:36:49.502762",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
