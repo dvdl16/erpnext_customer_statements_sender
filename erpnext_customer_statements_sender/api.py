@@ -208,3 +208,8 @@ def get_billing_address(customer):
 		return addresses[0]
 	else:
 		return {}
+
+@frappe.whitelist()
+def frappe_format_value(value, df=None, doc=None, currency=None, translated=False):
+	from frappe.utils.formatters import format_value
+	return format_value(value, df, doc, currency, translated)

@@ -51,6 +51,14 @@ app_license = "MIT"
 # automatically create page for each record of this doctype
 # website_generators = ["Web Page"]
 
+# Custom Jinja Filters
+# ----------
+jenv = {
+	"methods": [
+		"format_value:erpnext_customer_statements_sender.api.frappe_format_value"
+	]
+}
+
 # Installation
 # ------------
 
