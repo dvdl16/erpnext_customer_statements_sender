@@ -16,6 +16,8 @@
   "schedule",
   "section_manual",
   "send_html",
+  "from_date_for_all_customers",
+  "to_date_for_all_customers",
   "send_customer_statements",
   "column_break_14",
   "preview_html",
@@ -145,16 +147,29 @@
   {
    "fieldname": "from_date",
    "fieldtype": "Date",
-   "label": "From Date"
+   "label": "From Date",
+   "reqd": 1
   },
   {
    "fieldname": "to_date",
    "fieldtype": "Date",
-   "label": "To Date"
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date_for_all_customers",
+   "fieldtype": "Date",
+   "label": "From Date for all customers"
+  },
+  {
+   "default": "Today",
+   "fieldname": "to_date_for_all_customers",
+   "fieldtype": "Date",
+   "label": "To Date for all customers"
   }
  ],
  "issingle": 1,
- "modified": "2020-04-25 20:36:49.502762",
+ "modified": "2020-08-13 10:54:35.021541",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
