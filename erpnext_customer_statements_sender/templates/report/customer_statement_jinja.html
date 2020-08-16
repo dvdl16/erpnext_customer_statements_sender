@@ -22,7 +22,7 @@
 		         box-shadow: 0px 0px 9px rgba(0,0,0,0.5);
 		         max-width: 8.3in;
 		         min-height: 11.69in;
-		         padding: 0.75in;
+		         padding: 0.25in;
 		         margin: auto;
 		    }
 		     .print-format.landscape {
@@ -183,8 +183,6 @@
 <div class="print-format-gutter">
 		<div class="print-format" class="hidden-pdf">
 
-
-
 			<div id="header-html">
 				{% if letter_head %}
 					<div class="letter-head">{{ letter_head }}</div>
@@ -212,15 +210,14 @@
 			</h5>
 			<hr>
 
-
 			<table class="table table-bordered">
 				<thead>
 					<tr>
-						<th style="width: 12%">{{ _("Date") }}</th>
-						<th style="width: 11%">{{ _("Type") }}</th>
-						<th style="width: 43%">{{ _("Reference") }}</th>
-						<th style="width: 17%">{{ _("Amount") }}</th>
-						<th style="width: 17%">{{ _("Balance") }}</th>
+						<th class="text-center" style="width: 12%">{{ _("Date") }}</th>
+						<th class="text-center" style="width: 11%">{{ _("Type") }}</th>
+						<th class="text-center" style="width: 43%">{{ _("Reference") }}</th>
+						<th class="text-center" style="width: 17%">{{ _("Amount") }}</th>
+						<th class="text-center" style="width: 17%">{{ _("Balance") }}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -263,23 +260,23 @@
 
 			{% if data_ageing %}
 			<h6>Ageing Summary</h6>
-			<table class="table table-bordered" style="width:90%;">
+			<table class="table table-bordered" style="width:100%;">
 				<thead>
 					<tr>
-						<th style="width: 20%">{{ labels_ageing.range1 }}</th>
-						<th style="width: 20%">{{ labels_ageing.range2 }}</th>
-						<th style="width: 20%">{{ labels_ageing.range3 }}</th>
-						<th style="width: 20%">{{ labels_ageing.range4 }}</th>
-						<th style="width: 20%">{{ labels_ageing.range5 }}</th>
+						<th class="text-center" style="width: 20%">{{ labels_ageing.range1 }}</th>
+						<th class="text-center" style="width: 20%">{{ labels_ageing.range2 }}</th>
+						<th class="text-center" style="width: 20%">{{ labels_ageing.range3 }}</th>
+						<th class="text-center" style="width: 20%">{{ labels_ageing.range4 }}</th>
+						<th class="text-center" style="width: 20%">{{ labels_ageing.range5 }}</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td> {{ frappe.utils.fmt_money(data_ageing[0].range1, currency=currency) }} </td>
-						<td> {{ frappe.utils.fmt_money(data_ageing[0].range2, currency=currency) }} </td>
-						<td> {{ frappe.utils.fmt_money(data_ageing[0].range3, currency=currency) }} </td>
-						<td> {{ frappe.utils.fmt_money(data_ageing[0].range4, currency=currency) }} </td>
-						<td> {{ frappe.utils.fmt_money(data_ageing[0].range5, currency=currency) }} </td>
+						<td class="text-right"> {{ frappe.utils.fmt_money(data_ageing[0].range1, currency=currency) }} </td>
+						<td class="text-right"> {{ frappe.utils.fmt_money(data_ageing[0].range2, currency=currency) }} </td>
+						<td class="text-right"> {{ frappe.utils.fmt_money(data_ageing[0].range3, currency=currency) }} </td>
+						<td class="text-right"> {{ frappe.utils.fmt_money(data_ageing[0].range4, currency=currency) }} </td>
+						<td class="text-right"> {{ frappe.utils.fmt_money(data_ageing[0].range5, currency=currency) }} </td>
 					</tr>
 				</tbody>
 			</table>
@@ -296,10 +293,6 @@
 				</tr>
 			</table>
 			{% endif %}
-
-
-
-
 
 		</div>
 </div>

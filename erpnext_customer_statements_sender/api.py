@@ -57,6 +57,9 @@ def send_statements(company=None, manual=None):
 			frappe.throw(_('Company field is required on Customer Statements Sender'))
 			exit()
 
+	from_date_for_all_customers = frappe.db.get_single_value('Customer Statements Sender', 'from_date_for_all_customers')
+	to_date_for_all_customers = frappe.db.get_single_value('Customer Statements Sender', 'to_date_for_all_customers')
+
 	email_list = get_recipient_list()
 	idx = 0
 	total = len(email_list)
@@ -66,7 +69,7 @@ def send_statements(company=None, manual=None):
 			if row.send_statement == "Yes":
 				if show_progress:
 					publish_progress(percent=(idx/total*100), title=progress_title, description = ' Creating PDF for {0}'.format(row.customer))
-				data = get_report_content(company, row.customer)
+				data = get_report_content(company, row.customer, from_date=from_date_for_all_customers, to_date=to_date_for_all_customers)
 				# Get PDF Data
 				pdf_data = get_pdf(data)
 				if not pdf_data:
