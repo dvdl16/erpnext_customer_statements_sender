@@ -9,7 +9,9 @@ import json
 from pprint import pprint
 from frappe.www import printview
 import datetime
-from frappe import publish_progress
+from frappe import publish_progress, sendmail
+from frappe.utils.background_jobs import enqueue as enqueue_frappe
+from frappe.core.doctype.communication.email import make
 
 @frappe.whitelist()
 def get_recipient_list():
@@ -45,6 +47,7 @@ def send_statements(company=None, manual=None):
 	"""
 	Send out customer statements
 	"""
+	from csf_tz.custom_api import print_out
 	show_progress = manual
 	progress_title = _("Sending customer statements...")
 
@@ -65,7 +68,7 @@ def send_statements(company=None, manual=None):
 	total = len(email_list)
 	for row in email_list:
 		idx += 1
-		if row.email_id is not None:
+		if row.email_id is not None and row.email_id != "":
 			if row.send_statement == "Yes":
 				if show_progress:
 					publish_progress(percent=(idx/total*100), title=progress_title, description = ' Creating PDF for {0}'.format(row.customer))
@@ -80,13 +83,14 @@ def send_statements(company=None, manual=None):
 					'fcontent': pdf_data
 				}]
 
-				frappe.sendmail(
+				make(
 					recipients = row.email_id,
+					send_email = True,
 					subject = 'Customer Statement from {0}'.format(company),
-					message = 'Good day. <br> Please find attached your latest statement from {0}'.format(company),
+					content = 'Good day. <br> Please find attached your latest statement from {0}'.format(company),
 					attachments = attachments,
-					reference_doctype = "Report",
-					reference_name="General Ledger"
+					doctype = "Report",
+					name = "General Ledger"
 				)
 
 	if show_progress:
@@ -95,8 +99,7 @@ def send_statements(company=None, manual=None):
 
 def enqueue():
 	"""Add method `send_statements` to the queue."""
-	frappe.enqueue(method=send_statements, queue='long',
-					timeout=300, is_async=True)
+	enqueue_frappe(method=send_statements, queue='long', timeout=600000, is_async=True, job_name="send_statments")
 
 @frappe.whitelist()
 def get_report_content(company, customer_name, from_date=None, to_date=None):
