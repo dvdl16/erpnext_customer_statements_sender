@@ -37,10 +37,10 @@ frappe.ui.form.on('Customer Statements Sender', {
         }
     );
   },
-  enque_sending_statements: function(frm) {
+  enqueue_sending_statements: function(frm) {
     let validRecipients = frm.doc.recipients.filter(c => c.send_statement === "Yes").length;
     frappe.confirm(
-        'Are you sure you want to send Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
+        'Are you sure you want to enqueue Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
         function(){
           frappe.call({
             method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",

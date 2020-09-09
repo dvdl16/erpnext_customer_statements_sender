@@ -14,12 +14,12 @@
   "html_schedule",
   "enable_schedule",
   "schedule",
+  "enqueue_sending_statements",
   "section_manual",
   "send_html",
   "from_date_for_all_customers",
   "to_date_for_all_customers",
   "send_customer_statements",
-  "enque_sending_statements",
   "column_break_14",
   "preview_html",
   "customer",
@@ -169,13 +169,13 @@
    "label": "To Date for all customers"
   },
   {
-   "fieldname": "enque_sending_statements",
+   "fieldname": "enqueue_sending_statements",
    "fieldtype": "Button",
-   "label": "Enque Sending Statements"
+   "label": "Enqueue Sending Statements"
   }
  ],
  "issingle": 1,
- "modified": "2020-09-09 14:53:32.411790",
+ "modified": "2020-09-09 14:56:46.583961",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
