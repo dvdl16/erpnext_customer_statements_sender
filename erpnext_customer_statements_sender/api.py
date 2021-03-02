@@ -182,6 +182,9 @@ def get_file_name():
 
 
 def get_billing_address(customer):
+	filters = {
+		'customer_name': customer
+	}
 	addresses = frappe.db.sql("""SELECT
 								customer,
 								MAX(priority) AS preferred_address,
@@ -207,8 +210,8 @@ def get_billing_address(customer):
 									FROM `tabCustomer` AS tab_cus
 										INNER JOIN `tabDynamic Link` as tab_dyn ON tab_dyn.link_name = tab_cus.name AND tab_dyn.link_doctype = 'Customer'
 										INNER JOIN `tabAddress` as tab_add ON tab_dyn.parent = tab_add.name AND tab_dyn.parenttype = 'Address'
-									WHERE tab_cus.name = 'Spar' AND tab_add.address_type = 'Billing') AS t_billing_add
-							GROUP BY customer""", as_dict=True)
+									WHERE tab_cus.name = %(customer_name)s AND tab_add.address_type = 'Billing') AS t_billing_add
+							GROUP BY customer""", filters, True)
 	if addresses and len(addresses)>0:
 		del(addresses[0]['preferred_address'])
 		return addresses[0]
