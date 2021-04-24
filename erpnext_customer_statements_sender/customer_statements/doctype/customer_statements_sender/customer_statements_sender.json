@@ -26,6 +26,7 @@
   "from_date",
   "to_date",
   "preview",
+  "send_email",
   "section_recipient",
   "get_customer_emails",
   "recipients"
@@ -172,10 +173,15 @@
    "fieldname": "enqueue_sending_statements",
    "fieldtype": "Button",
    "label": "Enqueue Sending Statements"
+  },
+  {
+   "fieldname": "send_email",
+   "fieldtype": "Button",
+   "label": "Send email"
   }
  ],
  "issingle": 1,
- "modified": "2020-09-09 14:58:27.614011",
+ "modified": "2021-04-24 20:22:09.754824",
  "modified_by": "Administrator",
  "module": "Customer Statements",
  "name": "Customer Statements Sender",
