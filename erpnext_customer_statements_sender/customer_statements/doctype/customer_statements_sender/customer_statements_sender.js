@@ -81,6 +81,26 @@ frappe.ui.form.on('Customer Statements Sender', {
   },
   no_ageing: function (frm) {
     cur_frm.save();
-  }
+  },
+  send_email: function (frm) {
+    if (frm.doc.customer != undefined && frm.doc.customer != "") {
+      frappe.call({
+        method: "erpnext_customer_statements_sender.api.send_individual_statement",
+        args: {
+          company: frm.doc.company,
+          customer: frm.doc.customer,
+          from_date: frm.doc.from_date,
+          to_date: frm.doc.to_date,
+          email_id: "to_find"
+        },
+        callback: function (r) {
+          frappe.msgprint(__("Email queued to be sent to customer"))
+        }
+      });
+    }
+    else {
+      frappe.msgprint('Please select a customer');
+    }
+  },
 
 });

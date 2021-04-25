@@ -1,29 +1,17 @@
 from __future__ import unicode_literals
 import frappe
-from frappe.model.document import Document
 from frappe.utils import (
-    flt,
-    time_diff_in_hours,
-    get_datetime,
-    getdate,
     today,
-    cint,
-    add_days,
-    get_link_to_form,
     format_time,
     global_date_format,
     now,
-    get_url_to_report,
     get_first_day,
 )
-from frappe.utils.xlsxutils import make_xlsx
 from frappe.utils.pdf import get_pdf
 from frappe import _
-import json
-from pprint import pprint
 from frappe.www import printview
 import datetime
-from frappe import publish_progress, sendmail
+from frappe import publish_progress
 from frappe.utils.background_jobs import enqueue as enqueue_frappe
 from frappe.core.doctype.communication.email import make
 
@@ -263,6 +251,7 @@ def frappe_format_value(value, df=None, doc=None, currency=None, translated=Fals
     return format_value(value, df, doc, currency, translated)
 
 
+@frappe.whitelist()
 def send_individual_statement(customer, email_id, company, from_date, to_date):
     data = get_report_content(
         company,
@@ -277,6 +266,8 @@ def send_individual_statement(customer, email_id, company, from_date, to_date):
 
     attachments = [{"fname": get_file_name(), "fcontent": pdf_data}]
 
+    if email_id == "to_find":
+        email_id = frappe.get_value("Customer", customer, "email_id")
     make(
         recipients=email_id,
         send_email=True,
