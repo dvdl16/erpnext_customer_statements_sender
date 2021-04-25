@@ -2,62 +2,62 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Customer Statements Sender', {
-  refresh: function(frm) {
+  refresh: function (frm) {
     // Default values in From and To Dates
     var today = frappe.datetime.nowdate();
     frm.set_value('from_date', frappe.datetime.month_start(today));
     frm.set_value('to_date', today);
   },
-  get_customer_emails: function(frm) {
+  get_customer_emails: function (frm) {
     frappe.call({
       method: "populate_recipient_list",
       doc: frm.doc,
-      callback: function(r) {
-          cur_frm.refresh_field('recipients');
-          cur_frm.save();
+      callback: function (r) {
+        cur_frm.refresh_field('recipients');
+        cur_frm.save();
       }
     });
   },
-  send_customer_statements: function(frm) {
+  send_customer_statements: function (frm) {
     let validRecipients = frm.doc.recipients.filter(c => c.send_statement === "Yes").length;
     frappe.confirm(
-        'Are you sure you want to send Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
-        function(){
-          frappe.call({
-            method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
-            args: {
-              manual: true
-            },
-            callback: function(r) {
-            }
-          });
-        },
-        function(){
-          window.close();
-        }
+      'Are you sure you want to send Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
+      function () {
+        frappe.call({
+          method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
+          args: {
+            manual: true
+          },
+          callback: function (r) {
+          }
+        });
+      },
+      function () {
+        window.close();
+      }
     );
   },
-  enqueue_sending_statements: function(frm) {
+  enqueue_sending_statements: function (frm) {
     let validRecipients = frm.doc.recipients.filter(c => c.send_statement === "Yes").length;
     frappe.confirm(
-        'Are you sure you want to enqueue Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
-        function(){
-          frappe.call({
-            method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
-            args: {
-              manual: false
-            },
-            callback: function(r) {
-            }
-          });
-        },
-        function(){
-          window.close();
-        }
+      'Are you sure you want to enqueue Customer Statement Emails to <b>' + validRecipients + '</b> customers?',
+      function () {
+        frappe.call({
+          method: "erpnext_customer_statements_sender.api.statements_sender_scheduler",
+          args: {
+            manual: false
+          },
+          callback: function (r) {
+          }
+        });
+      },
+      function () {
+        window.close();
+      }
     );
   },
-  preview: function(frm) {
-    if(frm.doc.customer != undefined && frm.doc.customer != ""){
+  preview: function (frm) {
+    if (frm.doc.customer != undefined && frm.doc.customer != "") {
       frappe.call({
         method: "erpnext_customer_statements_sender.api.get_report_content",
         args: {
@@ -66,8 +66,8 @@ frappe.ui.form.on('Customer Statements Sender', {
           from_date: frm.doc.from_date,
           to_date: frm.doc.to_date
         },
-        callback: function(r) {
-          var x=window.open();
+        callback: function (r) {
+          var x = window.open();
           x.document.open().write(r.message);
         }
       });
@@ -76,10 +76,10 @@ frappe.ui.form.on('Customer Statements Sender', {
       frappe.msgprint('Please select a customer');
     }
   },
-  letter_head: function(frm) {
+  letter_head: function (frm) {
     cur_frm.save();
   },
-  no_ageing: function(frm) {
+  no_ageing: function (frm) {
     cur_frm.save();
   }
 
