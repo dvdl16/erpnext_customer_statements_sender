@@ -98,29 +98,12 @@ def send_statements(company=None, manual=None):
                         title=progress_title,
                         description=" Creating PDF for {0}".format(row.customer),
                     )
-                data = get_report_content(
-                    company,
+                send_individual_statement(
                     row.customer,
-                    from_date=from_date_for_all_customers,
-                    to_date=to_date_for_all_customers,
-                )
-                # Get PDF Data
-                pdf_data = get_pdf(data)
-                if not pdf_data:
-                    return
-
-                attachments = [{"fname": get_file_name(), "fcontent": pdf_data}]
-
-                make(
-                    recipients=row.email_id,
-                    send_email=True,
-                    subject="Customer Statement from {0}".format(company),
-                    content="Good day. <br> Please find attached your latest statement from {0}".format(
-                        company
-                    ),
-                    attachments=attachments,
-                    doctype="Report",
-                    name="General Ledger",
+                    row.email_id,
+                    company,
+                    from_date_for_all_customers,
+                    to_date_for_all_customers,
                 )
 
     if show_progress:
@@ -278,3 +261,30 @@ def frappe_format_value(value, df=None, doc=None, currency=None, translated=Fals
     from frappe.utils.formatters import format_value
 
     return format_value(value, df, doc, currency, translated)
+
+
+def send_individual_statement(customer, email_id, company, from_date, to_date):
+    data = get_report_content(
+        company,
+        customer,
+        from_date=from_date,
+        to_date=to_date,
+    )
+    # Get PDF Data
+    pdf_data = get_pdf(data)
+    if not pdf_data:
+        return
+
+    attachments = [{"fname": get_file_name(), "fcontent": pdf_data}]
+
+    make(
+        recipients=email_id,
+        send_email=True,
+        subject="Customer Statement from {0}".format(company),
+        content="Good day. <br> Please find attached your latest statement from {0}".format(
+            company
+        ),
+        attachments=attachments,
+        doctype="Report",
+        name="General Ledger",
+    )
