@@ -1,21 +1,25 @@
 from __future__ import unicode_literals
 import frappe
-from frappe.model.document import Document
-from frappe.utils import flt, time_diff_in_hours, get_datetime, getdate, today, cint, add_days, get_link_to_form, format_time, global_date_format, now, get_url_to_report, get_first_day
-from frappe.utils.xlsxutils import make_xlsx
+from frappe.utils import (
+    today,
+    format_time,
+    global_date_format,
+    now,
+    get_first_day,
+)
 from frappe.utils.pdf import get_pdf
 from frappe import _
-import json
-from pprint import pprint
 from frappe.www import printview
 import datetime
-from frappe import publish_progress, sendmail
+from frappe import publish_progress
 from frappe.utils.background_jobs import enqueue as enqueue_frappe
 from frappe.core.doctype.communication.email import make
 
+
 @frappe.whitelist()
 def get_recipient_list():
-	return frappe.db.sql("""SELECT
+    return frappe.db.sql(
+        """SELECT
 								customer,
 								contact,
 								email_id,
@@ -33,152 +37,173 @@ def get_recipient_list():
 									LEFT JOIN `tabContact` as tab_con ON tab_dyn.parent = tab_con.name
 								WHERE tab_cus.disabled = 0) AS t_contacts
 							GROUP BY customer
-							ORDER BY customer""", as_dict=True)
+							ORDER BY customer""",
+        as_dict=True,
+    )
+
 
 @frappe.whitelist()
 def statements_sender_scheduler(manual=None):
-	if manual:
-		send_statements(manual=manual)
-	else:
-		enqueue()
+    if manual:
+        send_statements(manual=manual)
+    else:
+        enqueue()
 
 
 def send_statements(company=None, manual=None):
-	"""
-	Send out customer statements
-	"""
-	from csf_tz.custom_api import print_out
-	show_progress = manual
-	progress_title = _("Sending customer statements...")
+    """
+    Send out customer statements
+    """
+    show_progress = manual
+    progress_title = _("Sending customer statements...")
 
-	if show_progress:
-		publish_progress(percent=0, title=progress_title)
+    if show_progress:
+        publish_progress(percent=0, title=progress_title)
 
-	if company is None:
-		company = frappe.db.get_single_value('Customer Statements Sender', 'company')
-		if not company:
-			frappe.throw(_('Company field is required on Customer Statements Sender'))
-			exit()
+    if company is None:
+        company = frappe.db.get_single_value("Customer Statements Sender", "company")
+        if not company:
+            frappe.throw(_("Company field is required on Customer Statements Sender"))
+            exit()
 
-	from_date_for_all_customers = frappe.db.get_single_value('Customer Statements Sender', 'from_date_for_all_customers')
-	to_date_for_all_customers = frappe.db.get_single_value('Customer Statements Sender', 'to_date_for_all_customers')
+    from_date_for_all_customers = frappe.db.get_single_value(
+        "Customer Statements Sender", "from_date_for_all_customers"
+    )
+    to_date_for_all_customers = frappe.db.get_single_value(
+        "Customer Statements Sender", "to_date_for_all_customers"
+    )
 
-	email_list = get_recipient_list()
-	idx = 0
-	total = len(email_list)
-	for row in email_list:
-		idx += 1
-		if row.email_id is not None and row.email_id != "":
-			if row.send_statement == "Yes":
-				if show_progress:
-					publish_progress(percent=(idx/total*100), title=progress_title, description = ' Creating PDF for {0}'.format(row.customer))
-				data = get_report_content(company, row.customer, from_date=from_date_for_all_customers, to_date=to_date_for_all_customers)
-				# Get PDF Data
-				pdf_data = get_pdf(data)
-				if not pdf_data:
-					return
+    email_list = get_recipient_list()
+    idx = 0
+    total = len(email_list)
+    for row in email_list:
+        idx += 1
+        if row.email_id is not None and row.email_id != "":
+            if row.send_statement == "Yes":
+                if show_progress:
+                    publish_progress(
+                        percent=(idx / total * 100),
+                        title=progress_title,
+                        description=" Creating PDF for {0}".format(row.customer),
+                    )
+                send_individual_statement(
+                    row.customer,
+                    row.email_id,
+                    company,
+                    from_date_for_all_customers,
+                    to_date_for_all_customers,
+                )
 
-				attachments = [{
-					'fname': get_file_name(),
-					'fcontent': pdf_data
-				}]
+    if show_progress:
+        publish_progress(percent=100, title=progress_title)
+        frappe.msgprint("Emails queued for sending")
 
-				make(
-					recipients = row.email_id,
-					send_email = True,
-					subject = 'Customer Statement from {0}'.format(company),
-					content = 'Good day. <br> Please find attached your latest statement from {0}'.format(company),
-					attachments = attachments,
-					doctype = "Report",
-					name = "General Ledger"
-				)
-
-	if show_progress:
-		publish_progress(percent=100, title=progress_title)
-		frappe.msgprint('Emails queued for sending')
 
 def enqueue():
-	"""Add method `send_statements` to the queue."""
-	enqueue_frappe(method=send_statements, queue='long', timeout=600000, is_async=True, job_name="send_statments")
+    """Add method `send_statements` to the queue."""
+    enqueue_frappe(
+        method=send_statements,
+        queue="long",
+        timeout=600000,
+        is_async=True,
+        job_name="send_statments",
+    )
+
 
 @frappe.whitelist()
 def get_report_content(company, customer_name, from_date=None, to_date=None):
-	'''Returns html for the report in PDF format'''
+    """Returns html for the report in PDF format"""
 
-	settings_doc = frappe.get_single('Customer Statements Sender')
+    settings_doc = frappe.get_single("Customer Statements Sender")
 
-	if not from_date:
-		from_date = get_first_day(today()).strftime("%Y-%m-%d")
-	if not to_date:
-		to_date = today()
+    if not from_date:
+        from_date = get_first_day(today()).strftime("%Y-%m-%d")
+    if not to_date:
+        to_date = today()
 
-	# Get General Ledger report content
-	report_gl = frappe.get_doc('Report', 'General Ledger')
-	report_gl_filters = {
-					'company': company,
-					'party_type': 'Customer',
-					'party': [customer_name],
-					'from_date': from_date,
-					'to_date': to_date,
-					'group_by': 'Group by Voucher (Consolidated)'}
+    # Get General Ledger report content
+    report_gl = frappe.get_doc("Report", "General Ledger")
+    report_gl_filters = {
+        "company": company,
+        "party_type": "Customer",
+        "party": [customer_name],
+        "from_date": from_date,
+        "to_date": to_date,
+        "group_by": "Group by Voucher (Consolidated)",
+    }
 
-	columns_gl, data_gl = report_gl.get_data(limit=500, user = "Administrator", filters = report_gl_filters, as_dict=True)
+    columns_gl, data_gl = report_gl.get_data(
+        limit=500, user="Administrator", filters=report_gl_filters, as_dict=True
+    )
 
-	# Add serial numbers
-	columns_gl.insert(0, frappe._dict(fieldname='idx', label='', width='30px'))
-	for i in range(len(data_gl)):
-		data_gl[i]['idx'] = i+1
+    # Add serial numbers
+    columns_gl.insert(0, frappe._dict(fieldname="idx", label="", width="30px"))
+    for i in range(len(data_gl)):
+        data_gl[i]["idx"] = i + 1
 
-	# Get ageing summary report content
-	data_ageing = []
-	labels_ageing = []
-	if settings_doc.no_ageing != 1:
-		report_ageing = frappe.get_doc('Report', 'Accounts Receivable Summary')
-		report_ageing_filters = {
-						'company': company,
-						'ageing_based_on': 'Posting Date',
-						'report_date': datetime.datetime.today(),
-						'range1': 30,
-						'range2': 60,
-						'range3': 90,
-						'range4': 120,
-						'customer': customer_name
-		}
-		columns_ageing, data_ageing = report_ageing.get_data(limit=50, user = "Administrator", filters = report_ageing_filters, as_dict=True)
-		labels_ageing = {}
-		for col in columns_ageing:
-			if 'range' in col['fieldname']:
-				labels_ageing[col['fieldname']] = col['label']
+    # Get ageing summary report content
+    data_ageing = []
+    labels_ageing = []
+    if settings_doc.no_ageing != 1:
+        report_ageing = frappe.get_doc("Report", "Accounts Receivable Summary")
+        report_ageing_filters = {
+            "company": company,
+            "ageing_based_on": "Posting Date",
+            "report_date": datetime.datetime.today(),
+            "range1": 30,
+            "range2": 60,
+            "range3": 90,
+            "range4": 120,
+            "customer": customer_name,
+        }
+        columns_ageing, data_ageing = report_ageing.get_data(
+            limit=50, user="Administrator", filters=report_ageing_filters, as_dict=True
+        )
+        labels_ageing = {}
+        for col in columns_ageing:
+            if "range" in col["fieldname"]:
+                labels_ageing[col["fieldname"]] = col["label"]
 
-	# Get Letter Head
-	no_letterhead = bool(frappe.db.get_single_value('Customer Statements Sender', 'no_letter_head'))
-	letter_head = frappe._dict(printview.get_letter_head(settings_doc, no_letterhead) or {})
-	if letter_head.content:
-		letter_head.content = frappe.utils.jinja.render_template(letter_head.content, {"doc": settings_doc.as_dict()})
+    # Get Letter Head
+    no_letterhead = bool(
+        frappe.db.get_single_value("Customer Statements Sender", "no_letter_head")
+    )
+    letter_head = frappe._dict(
+        printview.get_letter_head(settings_doc, no_letterhead) or {}
+    )
+    if letter_head.content:
+        letter_head.content = frappe.utils.jinja.render_template(
+            letter_head.content, {"doc": settings_doc.as_dict()}
+        )
 
-	# Render Template
-	date_time = global_date_format(now()) + ' ' + format_time(now())
-	currency = frappe.db.get_value('Company', company, 'default_currency')
-	report_html_data = frappe.render_template('erpnext_customer_statements_sender/templates/report/customer_statement_jinja.html', {
-		'title': 'Customer Statement for {0}'.format(customer_name),
-		'description': 'Customer Statement for {0}'.format(customer_name),
-		'date_time': date_time,
-		'columns': columns_gl,
-		'data': data_gl,
-		'report_name': 'Customer Statement for {0}'.format(customer_name),
-		'filters': report_gl_filters,
-		'currency': currency,
-		'letter_head': letter_head.content,
-		'billing_address': get_billing_address(customer_name),
-		'labels_ageing': labels_ageing,
-		'data_ageing': data_ageing
-	})
+    # Render Template
+    date_time = global_date_format(now()) + " " + format_time(now())
+    currency = frappe.db.get_value("Company", company, "default_currency")
+    report_html_data = frappe.render_template(
+        "erpnext_customer_statements_sender/templates/report/customer_statement_jinja.html",
+        {
+            "title": "Customer Statement for {0}".format(customer_name),
+            "description": "Customer Statement for {0}".format(customer_name),
+            "date_time": date_time,
+            "columns": columns_gl,
+            "data": data_gl,
+            "report_name": "Customer Statement for {0}".format(customer_name),
+            "filters": report_gl_filters,
+            "currency": currency,
+            "letter_head": letter_head.content,
+            "billing_address": get_billing_address(customer_name),
+            "labels_ageing": labels_ageing,
+            "data_ageing": data_ageing,
+        },
+    )
 
-	return report_html_data
+    return report_html_data
 
 
 def get_file_name():
-	return "{0}.{1}".format("Customer Statement".replace(" ", "-").replace("/", "-"), "pdf")
+    return "{0}.{1}".format(
+        "Customer Statement".replace(" ", "-").replace("/", "-"), "pdf"
+    )
 
 
 def get_billing_address(customer):
@@ -220,5 +245,36 @@ def get_billing_address(customer):
 
 @frappe.whitelist()
 def frappe_format_value(value, df=None, doc=None, currency=None, translated=False):
-	from frappe.utils.formatters import format_value
-	return format_value(value, df, doc, currency, translated)
+    from frappe.utils.formatters import format_value
+
+    return format_value(value, df, doc, currency, translated)
+
+
+@frappe.whitelist()
+def send_individual_statement(customer, email_id, company, from_date, to_date):
+    data = get_report_content(
+        company,
+        customer,
+        from_date=from_date,
+        to_date=to_date,
+    )
+    # Get PDF Data
+    pdf_data = get_pdf(data)
+    if not pdf_data:
+        return
+
+    attachments = [{"fname": get_file_name(), "fcontent": pdf_data}]
+
+    if email_id == "to_find":
+        email_id = frappe.get_value("Customer", customer, "email_id")
+    make(
+        recipients=email_id,
+        send_email=True,
+        subject="Customer Statement from {0}".format(company),
+        content="Good day. <br> Please find attached your latest statement from {0}".format(
+            company
+        ),
+        attachments=attachments,
+        doctype="Report",
+        name="General Ledger",
+    )
