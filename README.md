@@ -1,3 +1,14 @@
+## Deprecation Notice
+
+This app is deprecated as this functionality is now available in ERPNext Version 13
+
+See [this PR](https://github.com/frappe/erpnext/pull/22901) for more details
+
+
+
+---
+
+
 ## ERPNext Customer Statements Sender
 
 This app allows you to send out statements to your customers in bulk
