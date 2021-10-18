@@ -13,7 +13,7 @@ See [this PR](https://github.com/frappe/erpnext/pull/22901) for more details
 
 This app allows you to send out statements to your customers in bulk
 
-#### 🛠 Please note that this is a Work in Progress 🛠 Issues and PR's welcome.
+#### 🛠 Please note that this is a Work in Progress 🛠 Issues and PR's welcome. This app was designed for Frappe/ERPNext v12.
 
 The interface is on a Single Doctype called `Customer Statements Sender`:
 
@@ -36,4 +36,4 @@ Copyright (C) 2020  Dirk van der Laarse
 
 MIT
 
-#### 🛠 Please note that this is a Work in Progress 🛠 Make sure you check the statements beforehand to avoid angry customers
+#### 🛠 Please note that this is a Work in Progress 🛠 Make sure you check the statements beforehand to avoid angry customers. This app was designed for Frappe/ERPNext v12.
